@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Latihan1</string>
+    <string name="length">Tinggi</string>
+    <string name="calculate">HItang</string>
+    <string name="result">Hasil</string>
+    <string name="width">Lebar</string>
+</resources>
