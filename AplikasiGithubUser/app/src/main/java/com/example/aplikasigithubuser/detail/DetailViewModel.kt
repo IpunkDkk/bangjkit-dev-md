@@ -1,16 +1,52 @@
 package com.example.aplikasigithubuser.detail
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.aplikasigithubuser.data.local.ModuleDatabase
+import com.example.aplikasigithubuser.data.model.ResponseGithubUser
 import com.example.aplikasigithubuser.data.service.ApiClient
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class DetailViewModel: ViewModel() {
+class DetailViewModel(private val db: ModuleDatabase): ViewModel() {
     val resultDetailUser = MutableLiveData<com.example.aplikasigithubuser.utils.Result>()
     val resultFollowersUser = MutableLiveData<com.example.aplikasigithubuser.utils.Result>()
     val resultFollowingUser = MutableLiveData<com.example.aplikasigithubuser.utils.Result>()
+    val resultSuccessFavorite = MutableLiveData<Boolean>()
+    val resultDeleteFavorite = MutableLiveData<Boolean>()
+
+    private var isFavorite = false
+
+    fun setFavorite(item: ResponseGithubUser.Item?) {
+        viewModelScope.launch {
+            item?.let {
+                if (isFavorite) {
+                    db.userDao.delete(item)
+                    resultDeleteFavorite.value = true
+                } else {
+                    db.userDao.insert(item)
+                    resultSuccessFavorite.value = true
+                }
+            }
+            isFavorite = !isFavorite
+        }
+    }
+
+
+    fun findFavorite(id:Int, listenFavorite:() -> Unit){
+        viewModelScope.launch {
+            val user = db.userDao.findById(id)
+            Log.d("id_data", id.toString())
+            if (user != null){
+                listenFavorite()
+                Log.d("result", user.toString())
+                isFavorite = true
+            }
+        }
+    }
 
     fun getDetailUser(username:String){
         viewModelScope.launch {
@@ -70,5 +106,8 @@ class DetailViewModel: ViewModel() {
                 resultFollowingUser.value = com.example.aplikasigithubuser.utils.Result.Success(it)
             }
         }
+    }
+    class Factory(private val db:ModuleDatabase): ViewModelProvider.NewInstanceFactory(){
+        override fun <T: ViewModel> create(modelClass: Class<T>): T = DetailViewModel(db) as T
     }
 }

@@ -21,7 +21,7 @@ class UserAdapter (
 
     class UserViewHolder(private val v: ItemUserBinding) : RecyclerView.ViewHolder(v.root){
         fun bind(item: ResponseGithubUser.Item){
-            v.image.load(item.avatarUrl){
+            v.image.load(item.avatar_url){
                 transformations(CircleCropTransformation())
             }
             v.username.text = item.login

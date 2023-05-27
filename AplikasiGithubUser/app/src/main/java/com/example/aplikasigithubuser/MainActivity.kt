@@ -4,15 +4,22 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.aplikasigithubuser.data.local.SettingPreferences
 import com.example.aplikasigithubuser.data.model.ResponseGithubUser
 import com.example.aplikasigithubuser.databinding.ActivityMainBinding
 import com.example.aplikasigithubuser.detail.DetailActivity
-//import com.example.aplikasigithubuser.detail.DetailActivity
+import com.example.aplikasigithubuser.favorite.FavoriteActivity
+import com.example.aplikasigithubuser.setting.SettingActivity
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,10 +28,13 @@ class MainActivity : AppCompatActivity() {
     private val adapter by lazy {
         UserAdapter {
             Intent(this, DetailActivity::class.java).apply {
-                putExtra("username", it.login)
+                putExtra("user", it)
                 startActivity(this)
             }
         }
+    }
+    private val viewModel by viewModels<MainViewModel>{
+        MainViewModel.Factory(SettingPreferences(this))
     }
 
 
@@ -37,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
-        val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
@@ -69,6 +78,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
         viewModel.getUser()
+        viewModel.getTheme().observe(this) {
+            if (it) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu)
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.favorite -> {
+                Intent(this, FavoriteActivity::class.java).apply {
+                    startActivity(this)
+                }
+            }
+            R.id.setting -> {
+                Intent(this, SettingActivity::class.java).apply {
+                    startActivity(this)
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

@@ -1,6 +1,8 @@
 package com.example.aplikasigithubuser.data.service
 
+import android.graphics.Bitmap.Config
 import com.example.aplikasigithubuser.BuildConfig
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

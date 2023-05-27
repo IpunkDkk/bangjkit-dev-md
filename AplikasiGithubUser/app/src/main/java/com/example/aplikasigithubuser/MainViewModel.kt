@@ -1,9 +1,8 @@
 package com.example.aplikasigithubuser
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.example.aplikasigithubuser.data.local.SettingPreferences
 import com.example.aplikasigithubuser.data.service.ApiClient
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -12,7 +11,12 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import  com.example.aplikasigithubuser.utils.Result
 
-class MainViewModel: ViewModel() {
+class MainViewModel(private val pref: SettingPreferences): ViewModel() {
+
+    fun getTheme() = pref.getThemeSetting().asLiveData()
+
+
+
     val resultUser = MutableLiveData<Result>()
     fun getUser(){
         viewModelScope.launch{
@@ -64,5 +68,9 @@ class MainViewModel: ViewModel() {
                 resultUser.value = Result.Success(it.items)
             }
         }
+    }
+
+    class Factory(private val pref: SettingPreferences) : ViewModelProvider.NewInstanceFactory() {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = MainViewModel(pref) as T
     }
 }
